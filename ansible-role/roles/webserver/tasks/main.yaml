@@ -1,0 +1,22 @@
+---
+
+- name: Ensure Iptables is stopped
+  service: name=iptables state=stopped
+
+- name: Ensure Apache is installed
+  yum: name=httpd state=present
+
+- name: Start Apache
+  service: name=httpd enabled=yes state=started
+
+- name: Deploy Configuration file
+  template: src=httpd.j2 dest=/etc/httpd/conf/httpd.conf
+
+- name: Ensure Site directory is exist
+  file: path={{ doc_root }} state=directory
+
+- name: Copy Site files
+  template: src=index.j2 dest={{ doc_root }}/index.html mode=0775
+  notify:
+    - Restart Apache
+
